@@ -3,17 +3,28 @@ import { getTransactions } from "@/lib/services/transaction.service";
 
 export async function GET(request: Request) {
 
-  const { searchParams } = new URL(request.url);
+const { searchParams } = new URL(request.url);
 
-  const search = searchParams.get("search") ?? undefined;
+const page = Number(searchParams.get("page") ?? "1");
 
-  const status = searchParams.get("status") ?? undefined;
+const limit = Number(searchParams.get("limit") ?? "20");
 
-  const transactions = await getTransactions({
+const search = searchParams.get("search") ?? undefined;
+
+const status = searchParams.get("status") ?? undefined;
+
+const result = await getTransactions({
+
+    page,
+
+    limit,
+
     search,
-    status: status as any,
-  });
 
-  return NextResponse.json(transactions);
+    status: status as any,
+
+});
+
+return NextResponse.json(result);
 
 }

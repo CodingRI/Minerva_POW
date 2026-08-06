@@ -4,13 +4,48 @@ import { TransactionStatus } from "@/app/generated/prisma/client";
 interface GetTransactionsOptions {
   search?: string;
   status?: TransactionStatus;
+
+  page?: number;
+  limit?: number;
 }
 
 export async function getTransactions({
   search,
   status,
+  page,
+  limit
 }: GetTransactionsOptions) {
-  return prisma.transaction.findMany({
+  const currentPage = page ?? 1;
+const pageSize = limit ?? 20;
+
+const skip = (currentPage - 1) * pageSize;
+const total = await prisma.transaction.count({
+
+    where: {
+      ...(status && { status }),
+
+      ...(search && {
+        OR: [
+          {
+            description: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            vendor: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+        ],
+      }),
+    },
+
+});
+
+const transactions = await prisma.transaction.findMany({
+
     where: {
       ...(status && { status }),
 
@@ -39,5 +74,28 @@ export async function getTransactions({
     orderBy: {
       date: "desc",
     },
-  });
+
+    skip,
+
+    take: pageSize,
+
+});
+
+return {
+
+    transactions,
+
+    pagination: {
+
+        page: currentPage,
+
+        limit: pageSize,
+
+        total,
+
+        totalPages: Math.ceil(total / pageSize),
+
+    },
+
+};
 }
