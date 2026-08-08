@@ -24,29 +24,32 @@ model Client {
 }
 
 model Transaction {
-  id                  String             @id @default(cuid())
 
-  clientId            String
-  client              Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  id                String             @id @default(cuid())
 
-  date                DateTime
+  clientId          String
+  client            Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  description         String
-  vendor              String
+  date              DateTime
 
-  amount              Decimal            @db.Decimal(10,2)
+  description       String
+  vendor            String
 
-  suggestedCategory   String?
-  finalCategory       String?
+  amount            Decimal            @db.Decimal(10,2)
 
-  confidence          Float?
+  suggestedCategory String?
+  finalCategory     String?
 
-  status              TransactionStatus  @default(PENDING)
+  confidence        Float?
 
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  reasoning         String?          // <-- NEW
 
-  auditLogs           AuditLog[]
+  status            TransactionStatus @default(PENDING)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  auditLogs         AuditLog[]
 }
 
 model AuditLog {
@@ -63,4 +66,12 @@ model AuditLog {
   performedBy     String
 
   createdAt       DateTime @default(now())
+}
+
+model Upload {
+  id               String   @id @default(cuid())
+  filename         String
+  transactionCount Int
+  status           String   @default("completed")
+  createdAt        DateTime @default(now())
 }

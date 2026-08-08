@@ -5,6 +5,10 @@ export interface ParsedTransaction {
   description: string;
   vendor: string;
   amount: number;
+
+  suggestedCategory?: string;
+  confidence?: number;
+  reasoning?: string;
 }
 
 export async function parseCSV(
