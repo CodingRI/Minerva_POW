@@ -16,7 +16,7 @@ interface LayoutProps {
 export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en" className={`${inter.className} h-full antialiased`}>
-      <body className="h-full bg-background text-foreground">{children}</body>
+      <body className="h-full bg-background text-foreground" suppressHydrationWarning>{children}</body>
     </html>
   );
 }
