@@ -2,10 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { ParsedTransaction } from "@/lib/csv/parser";
 
 export async function saveTransactions(
-  transactions: ParsedTransaction[]
+  transactions: ParsedTransaction[],
+  filename: string
 ) {
 
-  //demo client for now
   const client = await prisma.client.upsert({
     where: {
       name: "Demo Accounting Firm",
@@ -16,10 +16,9 @@ export async function saveTransactions(
     },
   });
 
-  await prisma.transaction.createMany({
-
-    data: transactions.map((transaction) => ({
-
+for (const transaction of transactions) {
+  await prisma.transaction.create({
+    data: {
       clientId: client.id,
 
       date: new Date(transaction.date),
@@ -30,13 +29,28 @@ export async function saveTransactions(
 
       amount: transaction.amount,
 
+      suggestedCategory: transaction.suggestedCategory,
+
+      confidence: transaction.confidence,
+
+      reasoning: transaction.reasoning,
+
       status: "PENDING",
-
-    })),
-
+    },
   });
+}
 
-  return {
-    imported: transactions.length,
-  };
+const upload = await prisma.upload.create({
+  data: {
+    filename,
+    transactionCount: transactions.length,
+    status: "completed",
+  }
+});
+
+return {
+  imported: transactions.length,
+  uploadId: upload.id
+};
+
 }
